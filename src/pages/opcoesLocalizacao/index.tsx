@@ -1,77 +1,66 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable no-trailing-spaces */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-/* eslint-disable comma-dangle */
-/* eslint-disable prettier/prettier */
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+// src/pages/OpcaoLocalizacao.tsx
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, Button } from 'react-native';
+import { getCurrentLocation } from '../../services/location/LocationService';
+import { GeolocationResponse, GeolocationError } from '../../services/location/LocationService';
 
-const OpcoesLocalizacao = () => {
+const OpcoesLocalizacao: React.FC = () => {
+  const [location, setLocation] = useState<GeolocationResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchLocation = () => {
+    getCurrentLocation((position, err) => {
+      if (err) {
+        setError(err.message);
+        setLocation(null);
+      } else {
+        setLocation(position);
+        setError(null);
+      }
+    });
+  };
+
+  useEffect(() => {
+    fetchLocation();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.upperButtonsContainer}>
-        <TouchableOpacity style={styles.roundButton}>
-          {/* <Image src=''></Image> */}
-          <Text style={styles.buttonTextSOS}>Latitude: </Text>
-          <Text style={styles.buttonTextSOS}>Longitude: </Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.lowerButtonsContainer}>
-        <TouchableOpacity style={styles.rectangularButton}>
-          <Text style={styles.buttonText}>Lista de contatos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.rectangularButton}>
-          <Text style={styles.buttonText}>Opções de localização</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.rectangularButton}>
-          <Text style={styles.buttonText}>Editar meus dados</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.welcome}>Bem-vindo ao app de localização!</Text>
+      {location ? (
+        <Text style={styles.location}>
+          Latitude: {location.coords.latitude}, Longitude: {location.coords.longitude}
+        </Text>
+      ) : (
+        <Text style={styles.error}>{error || 'Obtendo localização...'}</Text>
+      )}
+      <Button title="Atualizar Localização" onPress={fetchLocation} />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
-  },
-  upperButtonsContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 100
   },
-  lowerButtonsContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: 'gray',
-    borderRadius: 30,
-    margin: 50,
-    height: 300,
-    justifyContent: 'space-around'
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10,
   },
-  roundButton: {
-    backgroundColor: 'red',
-    borderRadius: 90, 
-    width: 290,
-    height: 230,
-    justifyContent: 'center',
-  },
-  rectangularButton: {
-    backgroundColor: 'red',
-    borderRadius: 10,
-    padding: 10,
-  },
-  buttonTextSOS: {
-    color: 'white',
-    fontSize: 50,
-    textAlign: 'center'
-  },
-  buttonText: {
-    color: 'white',
+  location: {
     fontSize: 16,
-    textAlign: 'center'
+    margin: 10,
+  },
+  error: {
+    fontSize: 16,
+    margin: 10,
+    color: 'red',
   },
 });
 
